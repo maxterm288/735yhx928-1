@@ -1,1220 +1,271 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>MAXTERM - Soluciones Informáticas y de Diseño</title>
-  
-  <!-- model-viewer para 3D -->
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-  
-  <style>
-    /* Forzar colores fijos - ignorar preferencia del navegador */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    /* Forzar color-scheme a ninguno para evitar cambios automáticos */
-    :root {
-      color-scheme: only light;
-    }
-    
-    html {
-      color-scheme: only light;
-    }
-    
-    body {
-      background: #0a0a0a;
-      font-family: 'Georgia', serif;
-      overflow-x: hidden;
-      overflow-y: hidden;
-      position: fixed;
-      width: 100%;
-      height: 100%;
-    }
-    
-    /* Forzar que todos los textos tengan color blanco sólido por defecto */
-    body, .section-title, .service-title, .service-text, .service-icon,
-    .plan-title, .plan-badge, .plans-note, .contact-title, .contact-text,
-    .contact-icon, .hero-sub, .hero-text, .maxterm-grande, .section-subtitle {
-      color: #ffffff !important;
-    }
-    
-    /* ===== SECCIÓN INICIO - Texto Negro Fijo con contenedor más transparente ===== */
-    #inicio .maxterm-grande,
-    #inicio .hero-sub,
-    #inicio .hero-text {
-      color: #000000 !important;
-      text-shadow: none;
-    }
-    #inicio .text-gradient {
-      background: linear-gradient(135deg, #000000, #333333);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: #000000 !important;
-    }
-    
-    /* Contenedor de inicio - más transparente y claro */
-    #inicio .texto-bloque {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(8px);
-      border-radius: 32px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 3rem;
-      transition: all 0.3s ease;
-    }
-    
-    #inicio .texto-bloque:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-    
-    /* ===== SECCIÓN SERVICIOS - Texto Negro Fijo con tarjetas blancas transparentes ===== */
-    #servicios .section-title,
-    #servicios .service-title,
-    #servicios .service-text,
-    #servicios .service-icon {
-      color: #000000 !important;
-      text-shadow: none;
-    }
-    #servicios .text-gradient {
-      background: linear-gradient(135deg, #000000, #333333);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: #000000 !important;
-    }
-    
-    /* Tarjetas de servicios - fondo blanco transparente */
-    #servicios .service-card {
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(4px);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      transition: all 0.3s ease;
-    }
-    
-    #servicios .service-card:hover {
-      background: rgba(255, 255, 255, 0.2);
-      border-color: rgba(255, 255, 255, 0.15);
-      transform: translateY(-5px);
-    }
-    
-    /* ===== MENÚ DE HAMBURGUESA ===== */
-    .menu-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(8px);
-      border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      cursor: pointer;
-      z-index: 1000;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-    
-    .menu-toggle:hover {
-      background: rgba(0, 0, 0, 0.8);
-      transform: scale(1.05);
-    }
-    
-    .menu-toggle span {
-      width: 25px;
-      height: 2px;
-      background: #ffffff;
-      transition: all 0.3s ease;
-      border-radius: 2px;
-    }
-    
-    .menu-toggle.active span:nth-child(1) {
-      transform: rotate(45deg) translate(8px, 8px);
-    }
-    
-    .menu-toggle.active span:nth-child(2) {
-      opacity: 0;
-    }
-    
-    .menu-toggle.active span:nth-child(3) {
-      transform: rotate(-45deg) translate(8px, -8px);
-    }
-    
-    .menu-panel {
-      position: fixed;
-      top: 0;
-      right: -300px;
-      width: 280px;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(16px);
-      z-index: 999;
-      transition: right 0.4s ease;
-      display: flex;
-      flex-direction: column;
-      padding: 100px 30px 40px;
-      gap: 25px;
-      border-left: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .menu-panel.active {
-      right: 0;
-    }
-    
-    .menu-panel a {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 1.3rem;
-      font-family: 'Georgia', serif;
-      padding: 10px 0;
-      transition: all 0.3s ease;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      letter-spacing: 1px;
-    }
-    
-    .menu-panel a:hover {
-      color: #cccccc;
-      transform: translateX(-8px);
-      border-bottom-color: rgba(255, 255, 255, 0.3);
-    }
-    
-    .menu-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 998;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-    }
-    
-    .menu-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-    
-    .scroll-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-    }
-    
-    .seccion {
-      position: relative;
-      width: 100%;
-      min-height: 100vh;
-      overflow: hidden;
-    }
-    
-    .capas-seccion {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
-    
-    .capa {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    }
-
-    /* En móvil las imágenes son portrait, mostrar completas */
-    @media (max-width: 768px) {
-      .capa {
-        object-fit: contain;
-      }
-    }
-    
-    #fondo-inicio { z-index: 1; }
-    #capa1-inicio { z-index: 2; transform: translateY(100%); }
-    #capa2-inicio { z-index: 3; transform: translateY(100%); }
-    
-    .capa-fondo-seccion { z-index: 1; }
-    .capa-movil-seccion { z-index: 2; transform: translateY(100%); transition: transform 0.6s ease-out; }
-    
-    .contenido-seccion {
-      position: relative;
-      z-index: 10;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4rem 2rem;
-      background: transparent;
-    }
-    
-    .contenido-inner {
-      max-width: 1400px;
-      width: 100%;
-      margin: 0 auto;
-    }
-    
-    .texto-bloque {
-      background: transparent;
-      backdrop-filter: none;
-      border-radius: 0;
-      padding: 2.5rem;
-      border: none;
-    }
-    
-    .section-title {
-      font-size: clamp(2rem, 5vw, 3rem);
-      text-align: center;
-      margin-bottom: 2.5rem;
-      font-family: 'Georgia', serif;
-      font-weight: 400;
-    }
-    
-    .text-gradient {
-      background: linear-gradient(135deg, #ffffff, #cccccc);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: #ffffff;
-    }
-    
-    .hero-texto-cambiante {
-      text-align: center;
-    }
-    
-    .hero-bloque {
-      display: none;
-    }
-    
-    .hero-bloque.activo {
-      display: block;
-    }
-    
-    .maxterm-grande {
-      font-size: clamp(2.5rem, 10vw, 6rem);
-      font-weight: 900;
-      letter-spacing: 0.05em;
-      display: block;
-    }
-    
-    .hero-sub {
-      font-size: clamp(1.2rem, 4vw, 2rem);
-      margin: 0.5rem 0;
-    }
-    
-    .hero-text {
-      font-size: 1rem;
-      max-width: 700px;
-      margin: 1rem auto 0;
-      line-height: 1.6;
-    }
-    
-    /* SECCIÓN PORTAFOLIO - Contenedor muy transparente */
-    #portafolio .texto-bloque {
-      background: rgba(0, 0, 0, 0.25);
-      backdrop-filter: blur(4px);
-      border-radius: 32px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    
-    /* SECCIÓN PLANES - Tarjetas levemente oscuras */
-    #planes .plan-card {
-      background: rgba(0, 0, 0, 0.15);
-      backdrop-filter: blur(4px);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    
-    #planes .plan-card:hover {
-      background: rgba(0, 0, 0, 0.25);
-      border-color: rgba(255, 255, 255, 0.12);
-    }
-    
-    #planes .plan-card.featured {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    #planes .plan-badge {
-      background: rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    #planes .plan-badge.popular {
-      background: rgba(255, 215, 0, 0.15);
-      border: 1px solid rgba(255, 215, 0, 0.3);
-      color: #ffd700;
-    }
-    
-    /* SECCIÓN CONTACTO - Tarjetas levemente oscuras */
-    #contacto .contact-card {
-      background: rgba(0, 0, 0, 0.15);
-      backdrop-filter: blur(4px);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      transition: all 0.3s ease;
-    }
-    
-    #contacto .contact-card:hover {
-      background: rgba(0, 0, 0, 0.25);
-      border-color: rgba(255, 255, 255, 0.12);
-      transform: translateY(-5px);
-    }
-    
-    /* Grids */
-    .services-grid, .plans-grid, .contact-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-    }
-    
-    .service-card {
-      background: transparent;
-      backdrop-filter: none;
-      border-radius: 0;
-      padding: 1.5rem;
-      text-align: center;
-      transition: all 0.3s ease;
-      border: none;
-    }
-    
-    .plan-card, .contact-card {
-      background: transparent;
-      backdrop-filter: none;
-      border-radius: 0;
-      padding: 1.5rem;
-      text-align: center;
-      transition: all 0.3s ease;
-      border: none;
-    }
-    
-    .service-img, .plan-img {
-      width: 100%;
-      max-width: 180px;
-      height: auto;
-      border-radius: 16px;
-      margin-bottom: 1rem;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-    }
-    
-    .service-icon {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .service-title, .plan-title, .contact-title {
-      font-size: 1.2rem;
-      margin: 0.5rem 0;
-      font-family: 'Georgia', serif;
-    }
-    
-    .service-text, .contact-text {
-      line-height: 1.5;
-      font-family: 'Helvetica Neue', sans-serif;
-      font-size: 0.85rem;
-      opacity: 0.85;
-    }
-    
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.7rem 1.5rem;
-      border-radius: 40px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: all 0.3s ease;
-      margin-top: 1rem;
-      font-size: 0.85rem;
-    }
-    
-    .btn-primary {
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(8px);
-      color: #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .btn-primary:hover {
-      transform: scale(1.03);
-      background: rgba(0, 0, 0, 0.6);
-    }
-    
-    .btn-whatsapp {
-      background: linear-gradient(135deg, #25D366, #128C7E);
-      color: #ffffff;
-      animation: whatsapp-glow 2s infinite;
-    }
-    
-    .btn-whatsapp:hover {
-      transform: scale(1.05);
-    }
-    
-    @keyframes whatsapp-glow {
-      0% { box-shadow: 0 0 5px rgba(37, 211, 102, 0.3); }
-      50% { box-shadow: 0 0 15px rgba(37, 211, 102, 0.6); }
-      100% { box-shadow: 0 0 5px rgba(37, 211, 102, 0.3); }
-    }
-    
-    .contact-card {
-      display: block;
-      text-decoration: none;
-    }
-    
-    .contact-icon {
-      font-size: 2.2rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .plans-note {
-      text-align: center;
-      font-size: 0.75rem;
-      opacity: 0.6;
-      margin-top: 2rem;
-    }
-    
-    .section-subtitle {
-      text-align: center;
-      opacity: 0.8;
-      margin-bottom: 2rem;
-    }
-    
-    /* ===== FOOTER ===== */
-    .footer {
-      background: rgba(5, 5, 8, 0.8);
-      backdrop-filter: blur(10px);
-      padding: 2rem 0 1rem;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-    
-    .footer-content {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1.5rem;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-    
-    .footer-logo {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    .footer-logo-img {
-      width: 45px;
-      height: 45px;
-      object-fit: contain;
-      background: rgba(255,255,255,0.1);
-      border-radius: 10px;
-      padding: 6px;
-    }
-    
-    .footer-text h3 {
-      font-size: 0.85rem;
-      margin-bottom: 0.2rem;
-      color: #ffffff;
-    }
-    
-    .footer-text p {
-      font-size: 0.7rem;
-      color: #ffffff;
-      opacity: 0.5;
-    }
-    
-    .footer-social {
-      display: flex;
-      gap: 1rem;
-    }
-    
-    .footer-links a, .social-link {
-      color: #ffffff;
-      opacity: 0.5;
-      text-decoration: none;
-      margin: 0 0.5rem;
-      transition: opacity 0.3s;
-      font-size: 0.85rem;
-    }
-    
-    .social-link {
-      font-size: 1.3rem;
-      margin: 0;
-    }
-    
-    .footer-links a:hover, .social-link:hover {
-      opacity: 1;
-    }
-    
-    .footer-bottom {
-      text-align: center;
-      padding-top: 1.5rem;
-      margin-top: 1.5rem;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      font-size: 0.7rem;
-      color: #ffffff;
-      opacity: 0.4;
-    }
-    
-    .whatsapp-float {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: linear-gradient(135deg, #25D366, #128C7E);
-      color: #ffffff;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      text-decoration: none;
-      z-index: 1001;
-      box-shadow: 0 0 15px rgba(37, 211, 102, 0.5);
-      animation: float-move 2s ease-in-out infinite, whatsapp-glow 2s infinite;
-      transition: transform 0.2s;
-    }
-    
-    .whatsapp-float:hover {
-      transform: scale(1.1);
-      animation: none;
-    }
-    
-    @keyframes float-move {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-      100% { transform: translateY(0px); }
-    }
-    
-    @media (max-width: 1024px) {
-      .services-grid, .plans-grid, .contact-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    
-    @media (max-width: 768px) {
-      .contenido-seccion {
-        padding: 2rem 1rem;
-      }
-      #inicio .texto-bloque {
-        padding: 1.5rem;
-      }
-      .texto-bloque {
-        padding: 1.5rem;
-      }
-      .services-grid, .plans-grid, .contact-grid {
-        grid-template-columns: 1fr;
-      }
-      .service-img, .plan-img {
-        max-width: 130px;
-      }
-      .footer-content {
-        flex-direction: column;
-        text-align: center;
-      }
-      .footer-logo {
-        flex-direction: column;
-      }
-      .whatsapp-float {
-        width: 50px;
-        height: 50px;
-        font-size: 1.6rem;
-        bottom: 15px;
-        right: 15px;
-      }
-      .menu-panel {
-        width: 260px;
-        padding: 80px 25px 30px;
-      }
-      .menu-panel a {
-        font-size: 1.1rem;
-      }
-    }
-  </style>
-  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maxterm Soluciones Informáticas y de Diseño</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="logomaxterm.png">
 </head>
 <body>
-
-<!-- Botón de menú hamburguesa -->
-<div class="menu-toggle" id="menu-toggle">
-  <span></span>
-  <span></span>
-  <span></span>
-</div>
-
-<!-- Panel del menú lateral -->
-<div class="menu-panel" id="menu-panel">
-  <a href="#inicio">🏠 INICIO</a>
-  <a href="#servicios">⚙️ SERVICIOS</a>
-  <a href="#portafolio">📁 PORTAFOLIO</a>
-  <a href="#planes">📦 PLANES</a>
-  <a href="#contacto">📞 CONTACTO</a>
-</div>
-
-<!-- Overlay para cerrar el menú -->
-<div class="menu-overlay" id="menu-overlay"></div>
-
-<div class="scroll-container" id="scroll-container">
-  <!-- ===== SECCIÓN 1: INICIO ===== -->
-  <section class="seccion" id="inicio">
-    <div class="capas-seccion">
-      <img class="capa" id="fondo-inicio" src="fondo.png" alt="Fondo">
-      <img class="capa" id="capa1-inicio" src="capa1.png" alt="Capa 1">
-      <img class="capa" id="capa2-inicio" src="capa2.png" alt="Capa 2">
-    </div>
+    <!-- Fondo de partículas -->
+    <div id="particles-js"></div>
     
-    <div class="contenido-seccion">
-      <div class="contenido-inner hero-texto-cambiante">
-        <div class="texto-bloque">
-          <div id="hero-texto-0" class="hero-bloque activo">
-            <span class="maxterm-grande">MAXTERM</span>
-            <h1 class="hero-sub">Soluciones Informáticas y de Diseño</h1>
-            <p class="hero-text">Transformo ideas en ecosistemas digitales completos</p>
-          </div>
-          <div id="hero-texto-1" class="hero-bloque">
-            <span class="maxterm-grande">Desarrollo Web</span>
-            <h1 class="hero-sub">Creamos tu presencia digital</h1>
-            <p class="hero-text">Landing pages, sitios corporativos y aplicaciones web completas</p>
-          </div>
-          <div id="hero-texto-2" class="hero-bloque">
-            <span class="maxterm-grande">Diseño + Tecnología</span>
-            <h1 class="hero-sub">Creatividad y automatización</h1>
-            <p class="hero-text">Diseño gráfico, modelado 3D y automatización inteligente</p>
-          </div>
+    <!-- Header/Navbar -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">
+                    <img src="logomaxterm.png" alt="Maxterm Soluciones" id="logo-img">
+                    <span class="logo-text">MAXTERM</span>
+                </a>
+                
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="#inicio" class="nav-link">Inicio</a></li>
+                    <li class="nav-item"><a href="#servicios" class="nav-link">Servicios</a></li>
+                    <li class="nav-item"><a href="#planes" class="nav-link">Planes</a></li>
+                    <li class="nav-item"><a href="#contacto" class="nav-link">Contacto</a></li>
+                </ul>
+                
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </nav>
         </div>
-      </div>
-    </div>
-  </section>
+    </header>
 
-  <!-- ===== SECCIÓN 2: SERVICIOS ===== -->
-  <section class="seccion" id="servicios">
-    <div class="capas-seccion">
-      <img class="capa capa-fondo-seccion" id="fondo-servicios" src="fondo-servicios.png" alt="Fondo Servicios">
-      <img class="capa capa-movil-seccion" id="capa1-servicios" src="capa1-servicios.png" alt="Capa Servicios">
-    </div>
-    
-    <div class="contenido-seccion">
-      <div class="contenido-inner">
-        <div class="texto-bloque">
-          <h2 class="section-title">Soluciones Integrales para tu <span class="text-gradient">Negocio Digital</span></h2>
-          
-          <div class="services-grid">
-            <div class="service-card">
-              <img src="desarrolloweb.png" alt="Desarrollo Web" class="service-img" onerror="this.src='https://placehold.co/300x200/16213e/white?text=Web'">
-              <div class="service-icon"><i class="fas fa-globe"></i></div>
-              <h3 class="service-title">🌐 DESARROLLO WEB</h3>
-              <p class="service-text">Landing pages, sitios corporativos y aplicaciones web completas.</p>
+    <!-- Sección Hero -->
+    <section class="hero" id="inicio">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="text-gradient">MAXTERM</span>
+                    <span class="typewriter">Soluciones Informáticas y de Diseño</span>
+                </h1>
+<p class="hero-subtitle">Transformo ideas en <span class="text-neon">ecosistemas digitales</span> completos</p>
+<p class="hero-text">MAXTERM por Mario Sandoval • Desde diseño vectorial y modelado 3D hasta desarrollo full-stack y automatización inteligente. Soluciones que integran creatividad y tecnología.</p>
+                
+                
+                <div class="hero-buttons">
+                    <a href="#contacto" class="btn btn-primary pulse">
+                        <i class="fas fa-rocket"></i> Iniciar Proyecto
+                    </a>
+                    <a href="#servicios" class="btn btn-secondary">
+                        <i class="fas fa-cogs"></i> Ver Servicios
+                    </a>
+                </div>
             </div>
-            <div class="service-card">
-              <img src="sistemas.png" alt="Sistemas" class="service-img" onerror="this.src='https://placehold.co/300x200/16213e/white?text=Sistemas'">
-              <div class="service-icon"><i class="fas fa-laptop-code"></i></div>
-              <h3 class="service-title">💻 SISTEMAS Y PROGRAMAS</h3>
-              <p class="service-text">Aplicaciones de escritorio, sistemas de gestión y bases de datos.</p>
-            </div>
-            <div class="service-card">
-              <img src="diseno.png" alt="Diseño Gráfico" class="service-img" onerror="this.src='https://placehold.co/300x200/16213e/white?text=Diseño'">
-              <div class="service-icon"><i class="fas fa-palette"></i></div>
-              <h3 class="service-title">🎨 DISEÑO GRÁFICO</h3>
-              <p class="service-text">Branding, identidad visual, logos y diseño UI/UX profesional.</p>
-            </div>
-            <div class="service-card">
-              <img src="modelado3d.png" alt="Modelado 3D" class="service-img" onerror="this.src='https://placehold.co/300x200/16213e/white?text=3D'">
-              <div class="service-icon"><i class="fas fa-cube"></i></div>
-              <h3 class="service-title">🎭 MODELADO 3D</h3>
-              <p class="service-text">Modelado de productos, personajes, arquitectura y renders.</p>
-            </div>
-            <div class="service-card">
-              <img src="automatizacion.png" alt="Automatización" class="service-img" onerror="this.src='https://placehold.co/300x200/16213e/white?text=Auto'">
-              <div class="service-icon"><i class="fas fa-robot"></i></div>
-              <h3 class="service-title">⚙️ AUTOMATIZACIÓN</h3>
-              <p class="service-text">Automatizo procesos repetitivos, reportes automáticos y bots.</p>
-            </div>
-            <div class="service-card">
-              <img src="integracion.png" alt="Integración Total" class="service-img" onerror="this.src='https://placehold.co/300x200/16213e/white?text=Integración'">
-              <div class="service-icon"><i class="fas fa-puzzle-piece"></i></div>
-              <h3 class="service-title">🛠️ INTEGRACIÓN TOTAL</h3>
-              <p class="service-text">Combino todos los servicios en un solo ecosistema.</p>
-            </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ===== SECCIÓN 3: PORTAFOLIO ===== -->
-  <section class="seccion" id="portafolio">
-    <div class="capas-seccion">
-      <img class="capa capa-fondo-seccion" id="fondo-portafolio" src="fondo-portafolio.png" alt="Fondo Portafolio">
-      <img class="capa capa-movil-seccion" id="capa1-portafolio" src="capa1-portafolio.png" alt="Capa Portafolio">
-    </div>
-    
-    <div class="contenido-seccion">
-      <div class="contenido-inner">
-        <div class="texto-bloque" style="text-align: center;">
-          <h2 class="section-title">Proyectos <span class="text-gradient">Realizados</span></h2>
-          <p class="section-subtitle">Mira ejemplos de soluciones completas implementadas</p>
-          <a href="https://marue2728.github.io/Portafolio/" target="_blank" class="btn btn-primary" style="margin: 0 auto; display: inline-flex;">
-            <i class="fas fa-external-link-alt"></i> 🔍 VER PORTAFOLIO COMPLETO
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== SECCIÓN 4: PLANES ===== -->
-  <section class="seccion" id="planes">
-    <div class="capas-seccion">
-      <img class="capa capa-fondo-seccion" id="fondo-planes" src="fondo-planes.png" alt="Fondo Planes">
-      <img class="capa capa-movil-seccion" id="capa1-planes" src="capa1-planes.png" alt="Capa Planes">
-    </div>
-    
-    <div class="contenido-seccion">
-      <div class="contenido-inner">
-        <div class="texto-bloque">
-          <h2 class="section-title">Paquetes de <span class="text-gradient">Soluciones Personalizadas</span></h2>
-          
-          <div class="plans-grid">
-            <div class="plan-card">
-              <img src="planbasico.png" alt="Plan Básico" class="plan-img" onerror="this.src='https://placehold.co/300x200/16213e/white?text=Básico'">
-              <h3 class="plan-title">PLAN BÁSICO</h3>
-              <div class="plan-badge">Inicial</div>
-              <a href="planbasico.pdf" download class="btn btn-primary"><i class="fas fa-download"></i> DESCARGAR PDF</a>
+    <!-- Sección Servicios -->
+    <section class="services" id="servicios">
+        <div class="container">
+            <h2 class="section-title">Soluciones Integrales para tu <span class="text-gradient">Negocio Digital</span></h2>
+            
+            <div class="services-grid">
+                <!-- Servicio 1 -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3 class="service-title">🌐 DESARROLLO WEB</h3>
+                    <p class="service-text">Landing pages, sitios corporativos y aplicaciones web completas con frontend moderno y backend robusto.</p>
+                </div>
+                
+                <!-- Servicio 2 -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3 class="service-title">💻 SISTEMAS Y PROGRAMAS</h3>
+                    <p class="service-text">Aplicaciones de escritorio, sistemas de gestión, plataformas con base de datos y autenticación.</p>
+                </div>
+                
+                <!-- Servicio 3 -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3 class="service-title">🎨 DISEÑO GRÁFICO</h3>
+                    <p class="service-text">Branding completo, identidad visual, logos, posts para redes sociales y diseño UI/UX profesional.</p>
+                </div>
+                
+                <!-- Servicio 4 -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <h3 class="service-title">🎭 MODELADO 3D</h3>
+                    <p class="service-text">Modelado de productos, personajes, arquitectura, renders profesionales y modelos interactivos para web.</p>
+                </div>
+                
+                <!-- Servicio 5 -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="service-title">⚙️ AUTOMATIZACIÓN</h3>
+                    <p class="service-text">Automatizo procesos repetitivos, genero reportes automáticos, creo bots y scripts personalizados.</p>
+                </div>
+                
+                <!-- Servicio 6 -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </div>
+                    <h3 class="service-title">🛠️ INTEGRACIÓN TOTAL</h3>
+                    <p class="service-text">Combino todos estos servicios en soluciones completas que funcionan como un solo ecosistema.</p>
+                </div>
             </div>
-            <div class="plan-card featured">
-              <img src="planestandar.png" alt="Plan Estándar" class="plan-img" onerror="this.src='https://placehold.co/300x200/0f3460/white?text=Estándar'">
-              <h3 class="plan-title">PLAN ESTÁNDAR</h3>
-              <div class="plan-badge popular">Popular</div>
-              <a href="planestandar.pdf" download class="btn btn-primary"><i class="fas fa-download"></i> DESCARGAR PDF</a>
+        </div>
+    </section>
+
+    <!-- Sección Portafolio -->
+    <section class="portfolio">
+        <div class="container">
+            <h2 class="section-title">Proyectos <span class="text-gradient">Realizados</span></h2>
+            <p class="section-subtitle">Mira ejemplos de soluciones completas implementadas</p>
+            
+            <div class="portfolio-button">
+                <a href="https://marue2728.github.io/Portafolio/" target="_blank" class="btn btn-accent btn-large pulse">
+                    <i class="fas fa-external-link-alt"></i> 🔍 VER PORTAFOLIO COMPLETO DE PROYECTOS DE MUESTRA
+                </a>
             </div>
-            <div class="plan-card">
-              <img src="planpro.png" alt="Plan Pro" class="plan-img" onerror="this.src='https://placehold.co/300x200/533483/white?text=Pro'">
-              <h3 class="plan-title">PLAN PRO</h3>
-              <div class="plan-badge">Premium</div>
-              <a href="planpro.pdf" download class="btn btn-primary"><i class="fas fa-download"></i> DESCARGAR PDF</a>
+        </div>
+    </section>
+
+    <!-- Sección Planes -->
+    <section class="plans" id="planes">
+        <div class="container">
+            <h2 class="section-title">Paquetes de <span class="text-gradient">Soluciones Personalizadas</span></h2>
+            
+            <div class="plans-grid">
+                <!-- Plan Básico -->
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <h3 class="plan-title">PLAN BÁSICO</h3>
+                        <div class="plan-badge">Inicial</div>
+                    </div>
+                    <div class="plan-content">
+                        <a href="planbasico.pdf" download class="btn btn-download">
+                            <i class="fas fa-download"></i> DESCARGAR PDF DETALLADO
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Plan Estándar -->
+                <div class="plan-card featured">
+                    <div class="plan-header">
+                        <h3 class="plan-title">PLAN ESTÁNDAR</h3>
+                        <div class="plan-badge popular">Popular</div>
+                    </div>
+                    <div class="plan-content">
+                        <a href="planestandar.pdf" download class="btn btn-download">
+                            <i class="fas fa-download"></i> DESCARGAR PDF DETALLADO
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Plan Pro -->
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <h3 class="plan-title">PLAN PRO</h3>
+                        <div class="plan-badge">Premium</div>
+                    </div>
+                    <div class="plan-content">
+                        <a href="planpro.pdf" download class="btn btn-download">
+                            <i class="fas fa-download"></i> DESCARGAR PDF DETALLADO
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="plan-card">
-              <img src="planpersonalizado.png" alt="Plan Personalizado" class="plan-img" onerror="this.src='https://placehold.co/300x200/1a1a2e/white?text=Personalizado'">
-              <h3 class="plan-title">PLAN PERSONALIZADO</h3>
-              <div class="plan-badge">A tu medida</div>
-              <a href="https://wa.me/50360035661" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> COTIZAR POR WHATSAPP</a>
+            
+            <p class="plans-note">* Todos los planes son personalizables. Contáctame para ajustar a tus necesidades específicas.</p>
+        </div>
+    </section>
+
+    <!-- Sección Contacto -->
+    <section class="contact" id="contacto">
+        <div class="container">
+            <h2 class="section-title">Hablemos de tu <span class="text-gradient">Proyecto</span></h2>
+            
+            <div class="contact-grid">
+                <!-- WhatsApp -->
+                <a href="https://wa.me/50360035661" target="_blank" class="contact-card whatsapp">
+                    <div class="contact-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <h3 class="contact-title">📱 WhatsApp Directo</h3>
+                    <p class="contact-text">💬 Chat Directo por WhatsApp</p>
+                </a>
+                
+                <!-- Email -->
+                <a href="mailto:maxterm288@gmail.com" class="contact-card email">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h3 class="contact-title">📧 Consulta por Email</h3>
+                    <p class="contact-text">✉️ Enviar Correo Electrónico</p>
+                </a>
+                
+                <!-- TikTok -->
+                <a href="https://vm.tiktok.com/ZMHwsTttoCdve-rdPA2/" target="_blank" class="contact-card tiktok">
+                    <div class="contact-icon">
+                        <i class="fab fa-tiktok"></i>
+                    </div>
+                    <h3 class="contact-title">🎥 TikTok Profesional</h3>
+                    <p class="contact-text">🎬 Ver Demos en TikTok</p>
+                </a>
             </div>
-          </div>
-          <p class="plans-note">* Todos los planes son personalizables. Contáctame para ajustar a tus necesidades específicas.</p>
         </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ===== SECCIÓN 5: CONTACTO ===== -->
-  <section class="seccion" id="contacto">
-    <div class="capas-seccion">
-      <img class="capa capa-fondo-seccion" id="fondo-contacto" src="fondo-contacto.png" alt="Fondo Contacto">
-      <img class="capa capa-movil-seccion" id="capa1-contacto" src="capa1-contacto.png" alt="Capa Contacto">
-    </div>
-    
-    <div class="contenido-seccion">
-      <div class="contenido-inner">
-        <div class="texto-bloque">
-          <h2 class="section-title">Hablemos de tu <span class="text-gradient">Proyecto</span></h2>
-          
-          <div class="contact-grid">
-            <a href="https://wa.me/50360035661" target="_blank" class="contact-card">
-              <div class="contact-icon"><i class="fab fa-whatsapp"></i></div>
-              <h3 class="contact-title">📱 WhatsApp Directo</h3>
-              <p class="contact-text">💬 Chat Directo por WhatsApp</p>
-            </a>
-            <a href="mailto:maxterm288@gmail.com" class="contact-card">
-              <div class="contact-icon"><i class="fas fa-envelope"></i></div>
-              <h3 class="contact-title">📧 Consulta por Email</h3>
-              <p class="contact-text">✉️ Enviar Correo Electrónico</p>
-            </a>
-            <a href="https://vm.tiktok.com/ZMHwsTttoCdve-rdPA2/" target="_blank" class="contact-card">
-              <div class="contact-icon"><i class="fab fa-tiktok"></i></div>
-              <h3 class="contact-title">🎥 TikTok Profesional</h3>
-              <p class="contact-text">🎬 Ver Demos en TikTok</p>
-            </a>
-            <a href="https://www.facebook.com/share/1bPqDncVoe/" target="_blank" class="contact-card">
-              <div class="contact-icon"><i class="fab fa-facebook"></i></div>
-              <h3 class="contact-title">📘 Facebook</h3>
-              <p class="contact-text">👍 Síguenos en Facebook</p>
-            </a>
-          </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="logomaxterm.png" alt="Maxterm" class="footer-logo-img">
+                    <div class="footer-text">
+                        <h3>Maxterm Soluciones Informáticas y de Diseño</h3>
+                        <p>Transformando ideas en realidades digitales</p>
+                    </div>
+                </div>
+                
+                <div class="footer-social">
+                    <a href="https://vm.tiktok.com/ZMHwsTttoCdve-rdPA2/" target="_blank" class="social-link">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                </div>
+                
+                <div class="footer-links">
+                    <a href="#inicio">Inicio</a>
+                    <a href="#servicios">Servicios</a>
+                    <a href="#planes">Planes</a>
+                    <a href="#contacto">Contacto</a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Maxterm Soluciones. Todos los derechos reservados.</p>
+            </div>
         </div>
-      </div>
-    </div>
-  </section>
+    </footer>
 
-  <!-- ===== FOOTER CON MODELO 3D - EXACTAMENTE COMO EL EJEMPLO ===== -->
-  <footer class="footer">
-    <!-- REPRODUZCO LA MISMA ESTRUCTURA DEL EJEMPLO ORIGINAL -->
-    <div style="max-width: 320px; margin: 0 auto 2rem auto;">
-      <div style="background: #fafafa; border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
-        <div style="position: relative; background: #fafafa;">
-          <model-viewer
-            id="mascota-3d"
-            src="mascota-Optimized.glb"
-            camera-controls
-            auto-rotate
-            rotation-per-second="15deg"
-            shadow-intensity="1"
-            exposure="1.1"
-            interaction-prompt="none"
-            style="width: 100%; height: 260px; background: #fafafa; display: block;">
-          </model-viewer>
-          <div style="position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.7); color: white; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-family: sans-serif; pointer-events: none; backdrop-filter: blur(4px);">
-            🖱️ Arrastra para rotar · Scroll para zoom
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="footer-content">
-      <div class="footer-logo">
-        <img src="logomaxterm.png" alt="Maxterm" class="footer-logo-img" onerror="this.src='https://placehold.co/50x50/fff/000?text=M'">
-        <div class="footer-text">
-          <h3>Maxterm Soluciones Informáticas y de Diseño</h3>
-          <p>Transformando ideas en realidades digitales</p>
-        </div>
-      </div>
-      
-      <div class="footer-social">
-        <a href="https://vm.tiktok.com/ZMHwsTttoCdve-rdPA2/" target="_blank" class="social-link"><i class="fab fa-tiktok"></i></a>
-        <a href="https://www.facebook.com/share/1bPqDncVoe/" target="_blank" class="social-link"><i class="fab fa-facebook"></i></a>
-      </div>
-      
-      <div class="footer-links">
-        <a href="#inicio">Inicio</a>
-        <a href="#servicios">Servicios</a>
-        <a href="#portafolio">Portafolio</a>
-        <a href="#planes">Planes</a>
-        <a href="#contacto">Contacto</a>
-      </div>
-    </div>
-    
-    <div class="footer-bottom">
-      <p>&copy; 2024 Maxterm Soluciones. Todos los derechos reservados.</p>
-    </div>
-  </footer>
-</div>
+    <!-- Botón WhatsApp Flotante -->
+    <a href="https://wa.me/50360035661" target="_blank" class="whatsapp-float pulse">
+        <i class="fab fa-whatsapp"></i>
+    </a>
 
-<a href="https://wa.me/50360035661" target="_blank" class="whatsapp-float">
-  <i class="fab fa-whatsapp"></i>
-</a>
-
-<!-- ===== MENÚ HAMBURGUESA JS ===== -->
-<script>
-  (function() {
-    const menuToggle = document.getElementById('menu-toggle');
-    const menuPanel = document.getElementById('menu-panel');
-    const menuOverlay = document.getElementById('menu-overlay');
-    
-    function openMenu() {
-      menuToggle.classList.add('active');
-      menuPanel.classList.add('active');
-      menuOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    
-    function closeMenu() {
-      menuToggle.classList.remove('active');
-      menuPanel.classList.remove('active');
-      menuOverlay.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-    
-    menuToggle.addEventListener('click', () => {
-      if (menuPanel.classList.contains('active')) {
-        closeMenu();
-      } else {
-        openMenu();
-      }
-    });
-    
-    menuOverlay.addEventListener('click', closeMenu);
-    
-    const menuLinks = menuPanel.querySelectorAll('a');
-    menuLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        closeMenu();
-        const targetId = link.getAttribute('href');
-        if (targetId && targetId !== '#') {
-          e.preventDefault();
-          const targetElement = document.querySelector(targetId);
-          if (targetElement) {
-            targetElement.scrollIntoView({ behavior: 'smooth' });
-          }
-        }
-      });
-    });
-  })();
-</script>
-
-<!-- ===== CONTROL DEL MODELO 3D - EXACTAMENTE COMO EL EJEMPLO ===== -->
-<script>
-  (function() {
-    const model = document.getElementById("mascota-3d");
-    
-    if (model) {
-      // Pausar rotación cuando el usuario interactúa (igual que el ejemplo)
-      model.addEventListener("mousedown", () => {
-        model.autoRotate = false;
-      });
-      
-      model.addEventListener("mouseup", () => {
-        model.autoRotate = true;
-      });
-      
-      // Para dispositivos táctiles
-      model.addEventListener("touchstart", () => {
-        model.autoRotate = false;
-      });
-      
-      model.addEventListener("touchend", () => {
-        model.autoRotate = true;
-      });
-      
-      // Animación fade-in al cargar (igual que el ejemplo)
-      model.addEventListener("load", () => {
-        model.style.opacity = "0";
-        model.style.transition = "opacity 0.8s ease";
-        requestAnimationFrame(() => {
-          model.style.opacity = "1";
-        });
-      });
-      
-      // Asegurar opacidad inicial
-      model.style.opacity = "1";
-      
-      // Pequeño log para saber que funcionó
-      console.log("✅ Modelo 3D configurado correctamente");
-    } else {
-      console.error("❌ No se encontró el elemento model-viewer con id 'mascota-3d'");
-    }
-  })();
-</script>
-
-<!-- ===== SCROLL RALENTIZADO 85% INICIO / 30% OTRAS ===== -->
-<script>
-  (function() {
-    const SPEED_FACTOR_INICIO = 0.15;
-    const SPEED_FACTOR_DEFAULT = 0.70;
-    
-    const container = document.getElementById('scroll-container');
-    if (!container) return;
-    
-    let scrollTop = container.scrollTop;
-    let targetScrollTop = container.scrollTop;
-    let isScrolling = false;
-    let animationFrame = null;
-    let currentSpeedFactor = SPEED_FACTOR_INICIO;
-    
-    function updateSpeedFactor() {
-      const scrollActual = container.scrollTop;
-      const inicioSection = document.getElementById('inicio');
-      
-      if (inicioSection) {
-        const inicioTop = inicioSection.offsetTop;
-        const inicioBottom = inicioTop + inicioSection.offsetHeight;
-        const viewportMid = scrollActual + window.innerHeight / 2;
-        
-        if (viewportMid >= inicioTop && viewportMid <= inicioBottom) {
-          currentSpeedFactor = SPEED_FACTOR_INICIO;
-        } else {
-          currentSpeedFactor = SPEED_FACTOR_DEFAULT;
-        }
-      }
-    }
-    
-    function smoothScroll() {
-      const diff = targetScrollTop - scrollTop;
-      scrollTop += diff * 0.12;
-      
-      const maxScroll = container.scrollHeight - container.clientHeight;
-      scrollTop = Math.max(0, Math.min(maxScroll, scrollTop));
-      
-      if (Math.abs(diff) < 0.5 && !isScrolling) {
-        container.scrollTop = targetScrollTop;
-        if (animationFrame) cancelAnimationFrame(animationFrame);
-        animationFrame = null;
-        return;
-      }
-      
-      container.scrollTop = scrollTop;
-      animationFrame = requestAnimationFrame(smoothScroll);
-    }
-    
-    container.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      isScrolling = true;
-      updateSpeedFactor();
-      
-      let delta = e.deltaY;
-      if (e.deltaMode === 1) delta *= 20;
-      
-      targetScrollTop += delta * currentSpeedFactor;
-      
-      const maxScroll = container.scrollHeight - container.clientHeight;
-      targetScrollTop = Math.max(0, Math.min(maxScroll, targetScrollTop));
-      
-      if (!animationFrame) animationFrame = requestAnimationFrame(smoothScroll);
-      setTimeout(() => { isScrolling = false; }, 100);
-    }, { passive: false });
-    
-    let touchStartY = 0, touchStartScroll = 0, touchActive = false, touchSpeedFactor = SPEED_FACTOR_INICIO;
-    
-    container.addEventListener('touchstart', (e) => {
-      touchStartY = e.touches[0].clientY;
-      touchStartScroll = targetScrollTop;
-      touchActive = true;
-      updateSpeedFactor();
-      touchSpeedFactor = currentSpeedFactor;
-    }, { passive: false });
-    
-    container.addEventListener('touchmove', (e) => {
-      if (!touchActive) return;
-      e.preventDefault();
-      const deltaY = touchStartY - e.touches[0].clientY;
-      targetScrollTop = touchStartScroll + (deltaY * touchSpeedFactor);
-      const maxScroll = container.scrollHeight - container.clientHeight;
-      targetScrollTop = Math.max(0, Math.min(maxScroll, targetScrollTop));
-      if (!animationFrame) animationFrame = requestAnimationFrame(smoothScroll);
-    }, { passive: false });
-    
-    container.addEventListener('touchend', () => {
-      touchActive = false;
-      setTimeout(() => { isScrolling = false; }, 100);
-    });
-    
-    window.addEventListener('keydown', (e) => {
-      const key = e.key;
-      let delta = 0;
-      const step = 100;
-      updateSpeedFactor();
-      
-      switch(key) {
-        case 'ArrowDown': delta = step; break;
-        case 'ArrowUp': delta = -step; break;
-        case 'PageDown': delta = container.clientHeight * 0.8; break;
-        case 'PageUp': delta = -container.clientHeight * 0.8; break;
-        case 'Home': targetScrollTop = 0; break;
-        case 'End': targetScrollTop = container.scrollHeight - container.clientHeight; break;
-        case ' ': delta = step; break;
-        default: return;
-      }
-      
-      e.preventDefault();
-      if (delta !== 0) targetScrollTop += delta * currentSpeedFactor;
-      const maxScroll = container.scrollHeight - container.clientHeight;
-      targetScrollTop = Math.max(0, Math.min(maxScroll, targetScrollTop));
-      if (!animationFrame) animationFrame = requestAnimationFrame(smoothScroll);
-    });
-    
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function(e) {
-        const targetId = this.getAttribute('href');
-        if (targetId === '#') return;
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-          e.preventDefault();
-          targetScrollTop = targetElement.offsetTop;
-          const maxScroll = container.scrollHeight - container.clientHeight;
-          targetScrollTop = Math.max(0, Math.min(maxScroll, targetScrollTop));
-          if (!animationFrame) animationFrame = requestAnimationFrame(smoothScroll);
-        }
-      });
-    });
-    
-    scrollTop = container.scrollTop;
-    targetScrollTop = container.scrollTop;
-    
-    function actualizarEfectos() {
-      const scrollActual = container.scrollTop;
-      const windowHeight = window.innerHeight;
-      
-      const inicioSection = document.getElementById('inicio');
-      if (inicioSection) {
-        const inicioTop = inicioSection.offsetTop;
-        const scrollPercentInicio = Math.max(0, Math.min(1, (scrollActual - inicioTop) / (inicioSection.offsetHeight - windowHeight)));
-        
-        const capa1Inicio = document.getElementById('capa1-inicio');
-        const capa2Inicio = document.getElementById('capa2-inicio');
-        
-        const t1 = Math.min(1, scrollPercentInicio * 2);
-        const t2 = Math.min(1, Math.max(0, (scrollPercentInicio - 0.5) * 2));
-        
-        if (capa1Inicio) {
-          capa1Inicio.style.transform = `translateY(${100 - (t1 * 100)}%)`;
-          capa1Inicio.style.opacity = t1 > 0 ? '1' : '0';
-        }
-        if (capa2Inicio) {
-          capa2Inicio.style.transform = `translateY(${100 - (t2 * 100)}%)`;
-          capa2Inicio.style.opacity = t2 > 0 ? '1' : '0';
-        }
-        
-        const textos = ['hero-texto-0', 'hero-texto-1', 'hero-texto-2'].map(id => document.getElementById(id));
-        let idx = 0;
-        if (scrollPercentInicio < 0.4) idx = 0;
-        else if (scrollPercentInicio < 0.75) idx = 1;
-        else idx = 2;
-        
-        textos.forEach((txt, i) => {
-          if (txt) {
-            if (i === idx) txt.classList.add('activo');
-            else txt.classList.remove('activo');
-          }
-        });
-      }
-      
-      function actualizarSeccion(seccionId, capaId) {
-        const seccion = document.getElementById(seccionId);
-        const capa = document.getElementById(capaId);
-        if (seccion && capa) {
-          const seccionTop = seccion.offsetTop;
-          const scrollPercent = Math.max(0, Math.min(1, (scrollActual - seccionTop) / (seccion.offsetHeight - windowHeight)));
-          const translateY = 100 - (scrollPercent * 100);
-          capa.style.transform = `translateY(${translateY}%)`;
-          capa.style.opacity = scrollPercent > 0.02 ? '1' : '0';
-        }
-      }
-      
-      actualizarSeccion('servicios', 'capa1-servicios');
-      actualizarSeccion('portafolio', 'capa1-portafolio');
-      actualizarSeccion('planes', 'capa1-planes');
-      actualizarSeccion('contacto', 'capa1-contacto');
-    }
-    
-    let lastScroll = 0;
-    function updateEffects() {
-      if (Math.abs(container.scrollTop - lastScroll) > 0.5) {
-        actualizarEfectos();
-        lastScroll = container.scrollTop;
-      }
-      requestAnimationFrame(updateEffects);
-    }
-    updateEffects();
-    
-    window.addEventListener('resize', () => setTimeout(actualizarEfectos, 100));
-    actualizarEfectos();
-  })();
-</script>
-
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
